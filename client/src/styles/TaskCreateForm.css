@@ -1,0 +1,23 @@
+.TaskCreateForm {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-end;
+  flex-wrap: nowrap;
+  padding: 0;
+}
+
+.TaskCreateForm-input{
+  flex: 2;
+}
+.TaskCreateForm-submit{
+  margin-left: 5px !important;
+}
+
+.TaskCreateForm .field>label {
+  color: #fff !important;
+}
+
+
+.TaskCreateForm .field {
+  margin: 0px !important;
+}

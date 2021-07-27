@@ -1,0 +1,45 @@
+.Task-li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0 -3rem 4px;
+  padding: 0.5rem 3rem;
+  background: rgba(255,255,255,0.2);
+  overflow: hidden;
+  position: relative;
+  transition: opacity 500 ease-in-out;
+}
+
+.Task-buttons {
+  flex-shrink: 0;
+  margin-left: auto;
+  padding-left: 0.7em;
+} 
+
+.Task-checkbox{
+  padding-right: 1rem;
+  margin-right: 0.5rem; 
+}
+
+.Task-completed{
+  color: lightgrey;
+  opacity: 0.6;  
+  text-decoration: line-through;
+}
+  
+
+.Task-edit-form{
+  display:flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: baseline;
+}
+
+.Task-edit-input {
+  flex: 2;
+}
+
+.Task-save-button{
+  margin-left: 5px;
+  padding-left: 0.7em;
+}

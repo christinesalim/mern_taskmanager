@@ -1,0 +1,14 @@
+.SignUp {
+  max-width: 500px;
+  display: flex;
+  flex-direction: row;
+  margin: 20px;
+  padding: 20px;
+
+}
+
+.SignUp-SignInButton{
+  display: flex;
+  flex-direction:row;
+  justify-content: center;
+}

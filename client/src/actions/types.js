@@ -1,0 +1,16 @@
+//List of valid action creators
+
+export const SIGN_IN = 'SIGN_IN';
+export const SIGN_OUT = 'SIGN_OUT';
+export const LOAD_USER = 'LOAD_USER';
+export const CREATE_TASK = 'CREATE_TASK';
+export const DELETE_TASK = 'DELETE_TASK';
+export const EDIT_TASK = 'EDIT_TASK';
+export const FETCH_TASKS = 'FETCH_TASKS';
+export const UPLOAD_AVATAR_COMPLETED = 'UPLOAD_AVATAR_COMPLETED';
+export const GET_AVATAR_RESPONSE_RECEIVED = 'GET_AVATAR_RESPONSE_RECEIVED';
+export const DELETED_AVATAR_FILE = 'DELETED_AVATAR_FILE';
+export const UPLOAD_AVATAR_REQ_RECEIVED = 'UPLOAD_AVATAR_REQ_RECEIVED';
+export const UPLOAD_AVATAR_ERROR = 'UPLOAD_AVATAR_ERROR';
+export const GET_AVATAR_ERROR = 'GET_AVATAR_ERROR';
+
