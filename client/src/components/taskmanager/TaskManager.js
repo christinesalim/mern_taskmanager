@@ -1,103 +1,96 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
+import React, { useState, useEffect, useRef } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { List } from 'semantic-ui-react';
 import Task from './Task';
 import { loadUser, fetchTasks } from '../../actions/index';
 import TaskCreateForm from './TaskCreateForm';
 import '../../styles/TaskManager.css';
 
-class TaskManager extends Component {
-  constructor(props){
-    super(props);
-    this.state = {tasks: []};
+const TaskManager = () => {
+  const dispatch = useDispatch();
+  //Data from redux store
+  const isSignedIn = useSelector( state => state.auth.isSignedIn);
+  const retrievedTasks = useSelector( state => state.tasks.tasks );
+  console.log("Retrieved tasks", retrievedTasks);
+  
+  //Local copy of user modified tasks
+  const [tasks, setTasks] =  useState([]);
+  const [displayedTasks, setDisplayedTasks] = useState([]);
+  const prevSignedInStatus = useRef(false);
        
-    this.toggleCompleted = this.toggleCompleted.bind(this);
-   
-  }
-
-  componentDidMount(){
-    if(!this.props.authData.isSignedIn){
-      console.log("TaskManager componentDidMount: loading user");
-      //Action to get user data previously saved if available
-      this.props.loadUser();
-    }
-
-    //Is user signed in
-    if (this.props.authData.isSignedIn){
-      console.log("TaskManager componentDidMount: user is signed in! Fetching tasks");
+  //Get tasks if user just signed in
+  useEffect ( () => {
+    console.log("Task Manager useEffect prevSignedInStatus", prevSignedInStatus);
+    
+    //Sign in status changed from false to true so get this
+    //user's tasks
+    if (!prevSignedInStatus.current && isSignedIn){
+      console.log("TaskManager useEffect: user is NOW signed in! Fetching tasks");
 
       //Get the user's tasks from the database
-      this.props.fetchTasks();
-    }  
-   
-  }
-
-  componentDidUpdate(prevProps){
-    console.log("componentDidUpdate prevProps", prevProps);
-    
-    if (!prevProps.authData.isSignedIn && this.props.authData.isSignedIn){
-      console.log("TaskManager componentDidUpdate: user is signed in! Fetching tasks");
-
-      //Get the user's tasks from the database
-      this.props.fetchTasks();
-      
+      dispatch(fetchTasks());
+     
     }
 
-    //When redux tasks array changes, update the tasks displayed
-    if (prevProps.tasks !== this.props.tasks){
-      this.setState({
-        tasks: this.props.tasks
-      })
-    }
-  }
-    
+    //Save the current sign in status
+    prevSignedInStatus.current = isSignedIn;
+    console.log("Task Manager useEffect UPDATING prevSignedInStatus", prevSignedInStatus);
+  },[isSignedIn]);
 
-  toggleCompleted(id){
-    const updatedTasks = this.state.tasks.map(task => {
+  //Update rendered tasks when the state store changes
+  useEffect (() => {
+    //Update our local copy of the tasks
+    setTasks(retrievedTasks);
+
+    //Update the list of tasks rendered based on the new list
+    
+    let tasksToDisplay = getTasksToRender (retrievedTasks)
+    console.log("TaskManager useEffect tasksToDisplay:", tasksToDisplay);
+    setDisplayedTasks(tasksToDisplay);
+    
+  }, [retrievedTasks]);
+
+  //Returns the tasks to render
+  const getTasksToRender = (tasks) => {
+    if(tasks){
+      return tasks.map( task => {
+        return (
+          <Task className='TaskManager-Task'
+            key={task._id} 
+            id={task._id} 
+            description={task.description}
+            completed={task.completed}             
+            toggleCompleted={toggleCompleted}
+          />
+        );
+      });
+    }
+  }  
+
+  //Toggle the task with the id specified   
+  const toggleCompleted = (id) => {
+    const updatedTasks = tasks.map(task => {
       if (task.id ===id){
         return { ...task, completed: !task.completed};
       } else {
         return task;
       }
     });
-    this.setState({tasks: updatedTasks});
+    setTasks(updatedTasks);
   }
 
-  render (){
-    let tasks = null;
-    if (this.state.tasks){
-      tasks = this.state.tasks.map( task => {
-        return (
-          <Task className='TaskManager-Task'
-            key={task._id} 
-            id={task._id} 
-            description={task.description}
-            completed={task.completed}
-           
-            toggleCompleted={this.toggleCompleted}
-          />
-        );
-      });
-      console.log("TaskManager render tasks:", this.state.tasks);
-    }
-    return (
-      <div className="TaskManager">
+  return (
+    <div className="TaskManager">
+      <div>
         <h1>My Tasks</h1>
-        <List>          
-          {tasks}
-        </List>
-        <TaskCreateForm />      
       </div>
-    );
-  }
-  
-};
-
-const mapStateToProps = (state) => {
-  return { 
-    authData: state.auth,
-    tasks: state.tasks.tasks
-  };
+      <List>          
+        {displayedTasks}
+      </List>
+      <TaskCreateForm />      
+    </div>
+  );
 }
 
-export default connect(mapStateToProps, { loadUser, fetchTasks })(TaskManager);
+
+export default TaskManager;
