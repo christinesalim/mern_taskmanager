@@ -1,6 +1,6 @@
 import React, { useEffect, useCallback, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Message, Item, Button, Grid, Icon, Image, Confirm } from 'semantic-ui-react';
+import { Popup, Item, Grid, Icon, Image, Confirm } from 'semantic-ui-react';
 
 import Auth from './Auth';
 import '../styles/Home.css';
@@ -84,17 +84,22 @@ const Home = () => {
           <Grid.Column width={2}>
           {databaseAvatarInfo.file? 
               
-                <Icon.Group size="huge">
+                <div className="Home-Icons">
                   <Image 
                     size="tiny" 
                     src={databaseAvatarInfo.file} 
                     alt="avatar" 
                     
                   /> 
-                  <Icon 
-                    link corner='top right' 
-                    name='delete' 
-                    onClick={showDeleteAvatarModal}
+                  <Popup content='Delete avatar'
+                    trigger={
+                      <Icon 
+                        size="large"
+                        link  
+                        name='delete'                     
+                        onClick={showDeleteAvatarModal}
+                      />
+                    }
                   />
                   <Confirm
                     open={confirmOpen}
@@ -102,8 +107,8 @@ const Home = () => {
                     onCancel={handleAvatarDeleteCancel}
                     onConfirm={handleAvatarDeleteConfirm}
                   />
-
-                </Icon.Group>
+                </div>
+                
               : 
               <Item> <Item.Image size="small" src={emptyProfile} alt="no avatar" circular/></Item> 
               }     
