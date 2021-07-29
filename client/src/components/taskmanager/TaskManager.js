@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { List, Image } from 'semantic-ui-react';
+import { List, Image, Message } from 'semantic-ui-react';
 import Task from './Task';
 import emptyProfile from '../../images/blank-profile-picture.png';
 import { fetchTasks, getAvatarFile } from '../../actions/index';
@@ -27,7 +27,8 @@ const TaskManager = () => {
   //If we don't yet have the avatar, get it from the database
   useEffect ( () => {   
     console.log("databaseAvatarInfo", databaseAvatarInfo);
-    if (!databaseAvatarInfo?.file){
+    
+    if (user?.user._id && !databaseAvatarInfo?.file){
       console.log("TaskManager Getting avatar for this user");          
       getAvatar();
     }    
@@ -89,31 +90,36 @@ const TaskManager = () => {
     //Update our local copy of the tasks
     setTasks(retrievedTasks);
 
-    //Update the list of tasks rendered based on the new list
-    
+    //Update the list of tasks rendered based on the new list    
     let tasksToDisplay = getTasksToRender (retrievedTasks)
     console.log("TaskManager useEffect tasksToDisplay:", tasksToDisplay);
     setDisplayedTasks(tasksToDisplay);
     
   }, [retrievedTasks, getTasksToRender]);
-
-  
-
   
 
   return (
-    <div className="TaskManager">
-      <div className="TaskManager-Heading">
-        {databaseAvatarInfo.file? 
-          <Image src={databaseAvatarInfo.file} alt="avatar" avatar/> : 
-          <Image src={emptyProfile} alt="no avatar" avatar/> 
-        }     
-        <span className="TaskManager-Title">My Tasks</span>
-      </div>
-      <List>          
-        {displayedTasks}
-      </List>
-      <TaskCreateForm />      
+    <div>
+      { user ? (
+        <>
+          <div className="TaskManager">
+            <div className="TaskManager-Heading">
+              {databaseAvatarInfo.file? 
+                <Image src={databaseAvatarInfo.file} alt="avatar" avatar/> : 
+                <Image src={emptyProfile} alt="no avatar" avatar/> 
+              }     
+              <span className="TaskManager-Title">My Tasks</span>
+            </div>
+            <List>          
+              {displayedTasks}
+            </List>
+            <TaskCreateForm />   
+          </div>
+        </> )  :
+        (
+          <Message>Please log in or sign up to view and manage your tasks.</Message>
+        )
+      }
     </div>
   );
 }

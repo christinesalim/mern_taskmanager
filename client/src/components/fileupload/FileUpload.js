@@ -75,7 +75,7 @@ const FileUpload = () => {
         />
       {
         avatarFile && 
-        <Button onClick={handleUpload}>Upload</Button>
+        <Button primary onClick={handleUpload}>Upload</Button>
       }
       </Form>
       <p>{message}</p>

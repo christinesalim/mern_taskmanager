@@ -1,6 +1,6 @@
-import React, { useEffect, useCallback, useRef } from 'react';
+import React, { useEffect, useCallback, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Message, Item, Button, Grid } from 'semantic-ui-react';
+import { Message, Item, Button, Grid, Icon, Image, Confirm } from 'semantic-ui-react';
 
 import Auth from './Auth';
 import '../styles/Home.css';
@@ -14,7 +14,7 @@ const Home = () => {
   const user = useSelector( (state) => state.auth.userData);
   const databaseAvatarInfo = useSelector( state => state.avatar );
   const avatarFile = useRef(databaseAvatarInfo?.file);
-
+  const [ confirmOpen, setConfirmOpen ] = useState(false);
   
   const getAvatar = useCallback(()=> {
     dispatch(getAvatarFile(user.user._id));
@@ -56,10 +56,23 @@ const Home = () => {
     }
   },[user, databaseAvatarInfo?.fileUploaded, getLatestAvatar])
 
-  const handleDeleteClick = () => {
+  const deleteAvatar = () => {
     console.log("Delete the profile");
     dispatch(deleteAvatarFile());
   }  
+
+  const showDeleteAvatarModal = () => {
+    setConfirmOpen(true);
+  }
+
+  const handleAvatarDeleteCancel = () => {
+    setConfirmOpen(false);
+  }
+
+  const handleAvatarDeleteConfirm = () => {
+    deleteAvatar();
+    setConfirmOpen(false);
+  }
 
   return (
   <div className="Home">
@@ -67,29 +80,38 @@ const Home = () => {
       <>
       <h1 className="Home-h1">Welcome {user?.user?.firstName}!</h1>
       <Grid divided='vertically'>
-      <Grid.Row columns={2}>
-        <Grid.Column width={3}>
-        {databaseAvatarInfo.file? 
-            <Item> <Item.Image size="tiny" src={databaseAvatarInfo.file} alt="avatar"/></Item> : 
-            <Item> <Item.Image size="small" src={emptyProfile} alt="no avatar" /></Item> 
-            }     
-        </Grid.Column>
-        <Grid.Column width={9}>
-          <FileUpload id={user?.user._id}/> 
-        </Grid.Column>
-        <Grid.Column width={4}>
-          { databaseAvatarInfo.file && <Button onClick={handleDeleteClick}>Delete Profile Image</Button> }
-        </Grid.Column>
-      </Grid.Row>
+        <Grid.Row columns={2}>
+          <Grid.Column width={2}>
+          {databaseAvatarInfo.file? 
+              
+                <Icon.Group size="huge">
+                  <Image 
+                    size="tiny" 
+                    src={databaseAvatarInfo.file} 
+                    alt="avatar" 
+                    
+                  /> 
+                  <Icon 
+                    link corner='top right' 
+                    name='delete' 
+                    onClick={showDeleteAvatarModal}
+                  />
+                  <Confirm
+                    open={confirmOpen}
+                    header='Do you want to delete your avatar image?'
+                    onCancel={handleAvatarDeleteCancel}
+                    onConfirm={handleAvatarDeleteConfirm}
+                  />
 
-      <Grid.Row columns={1}>
-        <Grid.Column>
-        <Message>
-            Member since: insert date here
-          </Message>
-        </Grid.Column>
-        
-      </Grid.Row>
+                </Icon.Group>
+              : 
+              <Item> <Item.Image size="small" src={emptyProfile} alt="no avatar" circular/></Item> 
+              }     
+          </Grid.Column>
+          <Grid.Column width={6}>
+            <FileUpload id={user?.user._id}/> 
+          </Grid.Column>       
+        </Grid.Row>      
       </Grid>
       </>)
     }
@@ -98,7 +120,7 @@ const Home = () => {
         <Auth />
       </>)
     }
-    <p>{'\u00A9'} Christine S. 2021. Built with MongoDB, Express, React and Node.js</p>
+    <p className='Home-footer'>{'\u00A9'} Christine S. 2021. Built with MongoDB, Express, React and Node.js</p>
   </div>);
 };
 
