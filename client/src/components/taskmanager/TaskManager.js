@@ -1,29 +1,42 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { List } from 'semantic-ui-react';
+import { List, Image } from 'semantic-ui-react';
 import Task from './Task';
-import { fetchTasks } from '../../actions/index';
+import emptyProfile from '../../images/blank-profile-picture.png';
+import { fetchTasks, getAvatarFile } from '../../actions/index';
 import TaskCreateForm from './TaskCreateForm';
 import '../../styles/TaskManager.css';
 
 const TaskManager = () => {
   const dispatch = useDispatch();
   //Data from redux store
+  const user = useSelector( (state) => state.auth.userData);
   const isSignedIn = useSelector( state => state.auth.isSignedIn);
   const retrievedTasks = useSelector( state => state.tasks.tasks );
-  console.log("Retrieved tasks", retrievedTasks);
+  const databaseAvatarInfo = useSelector( state => state.avatar );
   
   //Local copy of user modified tasks
   const [tasks, setTasks] =  useState([]);
   const [displayedTasks, setDisplayedTasks] = useState([]);
   const prevSignedInStatus = useRef(false);
 
+  const getAvatar = useCallback(()=> {
+    dispatch(getAvatarFile(user?.user._id));
+  },[user?.user._id, dispatch]);
+
+  //If we don't yet have the avatar, get it from the database
+  useEffect ( () => {   
+    console.log("databaseAvatarInfo", databaseAvatarInfo);
+    if (!databaseAvatarInfo?.file){
+      console.log("TaskManager Getting avatar for this user");          
+      getAvatar();
+    }    
+  }, [user?.user._id, databaseAvatarInfo, getAvatar]);
+
   const fetchDatabaseTasks = useCallback( () => {
     //Get the user's tasks from the database
     dispatch(fetchTasks());
-  },[dispatch]);
-
-  
+  },[dispatch]);  
 
   //Returns the tasks to render
   const getTasksToRender = useCallback( () => {
@@ -90,8 +103,12 @@ const TaskManager = () => {
 
   return (
     <div className="TaskManager">
-      <div>
-        <h1>My Tasks</h1>
+      <div className="TaskManager-Heading">
+        {databaseAvatarInfo.file? 
+          <Image src={databaseAvatarInfo.file} alt="avatar" avatar/> : 
+          <Image src={emptyProfile} alt="no avatar" avatar/> 
+        }     
+        <span className="TaskManager-Title">My Tasks</span>
       </div>
       <List>          
         {displayedTasks}

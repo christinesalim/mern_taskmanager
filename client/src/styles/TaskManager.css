@@ -16,3 +16,13 @@
 .TaskManager-Task{
   color: #fff;
 }
+
+.TaskManager-Heading{
+  display: flex;
+  align-items: center;
+}
+
+.TaskManager-Title{
+  font-size: 2rem !important; 
+  padding-left: 10px;
+}
