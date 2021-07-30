@@ -10,7 +10,11 @@
   display: flex;
 }
 
-.Home-footer{
+.Home-Footer{
   color: #777;
   padding-top: 50px;
+}
+
+.Home-Modal{
+  color: #000;
 }

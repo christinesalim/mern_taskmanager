@@ -18,9 +18,7 @@ class TaskCreateForm extends Component {
 
   handleSubmit = async(e) => {
     e.preventDefault();
-    //Add a uuid to existing task object and give it to TaskManager
-    //this.props.createTask({ ...this.state, id: uuid(), completed: false });
-    
+       
     //Generate action creator to create this new task
     this.props.createTask({ ...this.state, completed: false });
 
@@ -29,8 +27,7 @@ class TaskCreateForm extends Component {
   }
 
   handleChange(e){
-    this.setState({[e.target.name] : e.target.value});
-    
+    this.setState({[e.target.name] : e.target.value});    
   } 
     
   render(){
@@ -46,7 +43,12 @@ class TaskCreateForm extends Component {
             value={this.state.description}
             onChange={this.handleChange}            
             />
-          <Button className="TaskCreateForm-submit" type="submit" value="Submit">
+          <Button 
+            className="TaskCreateForm-submit" 
+            type="submit" 
+            value="Submit"
+            disabled={!this.state.description}
+          >
           Add
           </Button>
         </div>

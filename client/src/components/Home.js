@@ -102,6 +102,7 @@ const Home = () => {
                     }
                   />
                   <Confirm
+                    className='Home-Modal'
                     open={confirmOpen}
                     header='Do you want to delete your avatar image?'
                     onCancel={handleAvatarDeleteCancel}
@@ -125,7 +126,7 @@ const Home = () => {
         <Auth />
       </>)
     }
-    <p className='Home-footer'>{'\u00A9'} Christine S. 2021. Built with MongoDB, Express, React and Node.js</p>
+    <p className='Home-Footer'>{'\u00A9'} Christine S. 2021. Built with MongoDB, Express, React and Node.js</p>
   </div>);
 };
 
