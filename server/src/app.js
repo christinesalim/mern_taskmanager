@@ -25,4 +25,9 @@ app.use(express.urlencoded({extended:false}));
 app.use(userRouter);
 app.use(taskRouter);
 
+//For heroku deployment
+app.get('/', (req, res) => {
+  res.send('Hello to Task Manager API');
+});
+
 module.exports = app;

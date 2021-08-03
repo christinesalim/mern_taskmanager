@@ -20,19 +20,26 @@ const TaskManager = () => {
   const [displayedTasks, setDisplayedTasks] = useState([]);
   const prevSignedInStatus = useRef(false);
 
+  console.log("****TaskManager: user", user);
+
   const getAvatar = useCallback(()=> {
+    console.log("***getAvatar() for user", user?.user._id);
     dispatch(getAvatarFile(user?.user._id));
   },[user?.user._id, dispatch]);
 
   //If we don't yet have the avatar, get it from the database
   useEffect ( () => {   
-    console.log("databaseAvatarInfo", databaseAvatarInfo);
+    console.log("****TaskManager: databaseAvatarInfo", databaseAvatarInfo);
     
-    if (user?.user._id && !databaseAvatarInfo?.file){
-      console.log("TaskManager Getting avatar for this user");          
+    if (!databaseAvatarInfo?.file && user){
+      console.log("****TaskManager Getting avatar for this user");          
       getAvatar();
-    }    
-  }, [user?.user._id, databaseAvatarInfo, getAvatar]);
+    }  
+    else {
+      console.log("Already have file", databaseAvatarInfo.file);
+    }  
+  //}, [user?.user._id, databaseAvatarInfo, getAvatar]);
+  }, [user]);
 
   const fetchDatabaseTasks = useCallback( () => {
     //Get the user's tasks from the database
@@ -95,7 +102,7 @@ const TaskManager = () => {
     console.log("TaskManager useEffect tasksToDisplay:", tasksToDisplay);
     setDisplayedTasks(tasksToDisplay);
     
-  }, [retrievedTasks, getTasksToRender]);
+  }, [retrievedTasks, getTasksToRender]); 
   
 
   return (

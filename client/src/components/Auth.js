@@ -122,7 +122,10 @@ const Auth = () => {
     }
   }
 
-  const googleError = () => alert('Google Sign In was unsuccessful. Try again later');
+  const googleError = (e) => {
+    console.log("Google error: ", e);
+    alert('Google Sign In was unsuccessful. Try again later');
+  }
 
   const passwordFieldType = `${showPassword? "input" : "password"}`;
   
