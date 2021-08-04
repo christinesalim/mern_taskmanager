@@ -104,6 +104,7 @@ const TaskManager = () => {
     
   }, [retrievedTasks, getTasksToRender]); 
   
+  console.log(`Taskmanager: file ${databaseAvatarInfo.file}, error status: ${databaseAvatarInfo.error}`  );
 
   return (
     <div>
@@ -111,7 +112,7 @@ const TaskManager = () => {
         <>
           <div className="TaskManager">
             <div className="TaskManager-Heading">
-              {databaseAvatarInfo.file? 
+              {databaseAvatarInfo.file && !databaseAvatarInfo.error? 
                 <Image src={databaseAvatarInfo.file} alt="avatar" avatar/> : 
                 <Image src={emptyProfile} alt="no avatar" avatar/> 
               }     
