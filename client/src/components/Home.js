@@ -21,11 +21,12 @@ const Home = () => {
   },[user?.user._id, dispatch]);
 
   useEffect ( () => {   
-      if (user){
-        console.log("User data changed. Getting avatar for this user");          
-        getAvatar();
-      }    
-  }, [user, getAvatar]);
+    if (user){
+      console.log("User data changed. Getting avatar for this user");          
+      getAvatar();
+    }    
+  
+  }, []);
 
 
   const getLatestAvatar = useCallback(() => {
@@ -35,8 +36,9 @@ const Home = () => {
 
   //Update the reference to the avatar file blob so it can be freed
   useEffect(() => {
+    console.log("***Reading current databaseAvatarInfo.file", databaseAvatarInfo.file);
     avatarFile.current = databaseAvatarInfo.file;
-  });
+  },[]);
   
   //Get avatar after a new file is uploaded
   useEffect( () => {

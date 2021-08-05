@@ -74,6 +74,7 @@ export const sendAvatarFile = (formData) => {
 
 //Get avatar from backend for this user
 export const getAvatarFile = (id) => {
+  console.log("Sending avatar get request");
   return API.get(`/users/${id}/avatar`, { responseType: 'blob'});
 }
 
