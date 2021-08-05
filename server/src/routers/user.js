@@ -15,6 +15,7 @@ const client = new OAuth2Client(process.env.CLIENT_ID);
 //Route handler: POST /users
 router.post('/users', async (req,res)=> {
   const user = new User(req.body);
+  console.log("Received POST ", req.body);
   try {
     //Save the new user to the users collection
     await user.save();

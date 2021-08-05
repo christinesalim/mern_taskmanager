@@ -1,10 +1,10 @@
 import axios from 'axios';
-import { baseUrl } from '../config/config';
+
+const BASE_URL = process.env.REACT_APP_BASE_URL;
 
 //Fix this later: TODO
-const API = axios.create({ baseURL: baseUrl });
-
-
+const API = axios.create({ baseURL: BASE_URL });
+console.log ("BASE_URL", BASE_URL);
 
 //Intercept all requests sent to backend API and add the Bearer token
 API.interceptors.request.use((req) => {

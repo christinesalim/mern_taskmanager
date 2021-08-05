@@ -13,7 +13,9 @@ import {
   UPLOAD_AVATAR_REQ_RECEIVED,
   DELETED_AVATAR_FILE,
   UPLOAD_AVATAR_ERROR,
-  GET_AVATAR_ERROR
+  GET_AVATAR_ERROR,
+  AUTH_ERROR,
+  AUTH_ERROR_DISPLAYED
 } from './types';
 import * as api from '../api/index.js';
 
@@ -37,7 +39,8 @@ export const signIn = (formData) => async dispatch => {
 
     history.push('/taskmanager');
   }catch (error){
-    console.log(error);
+    console.log("Error", error.message);
+    dispatch({ type: AUTH_ERROR, payload: error });
   }
   
 };
@@ -51,7 +54,8 @@ export const googleSignIn = (token) => async dispatch => {
     dispatch({ type: SIGN_IN, payload: data });
     history.push('/taskmanager');
   } catch(error){
-    console.log(error);
+    console.log("Error", error.message);
+    dispatch({ type: AUTH_ERROR, payload: error });
   }
 };
 
@@ -64,8 +68,9 @@ export const signUp = (formData) => async dispatch => {
     dispatch({ type: SIGN_IN, payload: data });
 
     history.push('/taskmanager');
-  }catch (error){
-    console.log(error);
+  }catch (error){    
+      console.log("Error", error.message);
+      dispatch({ type: AUTH_ERROR, payload: error });    
   }
   
 };
@@ -169,4 +174,10 @@ export const deleteAvatarFile = () => async dispatch => {
   } catch (error){
     console.log(error);
   }
+}
+
+export const displayedAuthError = () => {
+  return { 
+    type: AUTH_ERROR_DISPLAYED 
+  };
 }

@@ -1,8 +1,9 @@
-import { SIGN_IN, SIGN_OUT, LOAD_USER } from '../actions/types';
+import { SIGN_IN, SIGN_OUT, LOAD_USER, AUTH_ERROR, AUTH_ERROR_DISPLAYED } from '../actions/types';
 
 const  INITIAL_STATE = {
   isSignedIn: null,
-  userData: null
+  userData: null,
+  error: null
 };
 
 const authReducer = ( state = INITIAL_STATE, action) => {
@@ -18,7 +19,7 @@ const authReducer = ( state = INITIAL_STATE, action) => {
       //Save the user's token in local storage
       localStorage.setItem('taskmanager', JSON.stringify(action.payload));
       
-      return { ...state, isSignedIn: true, userData: action.payload};
+      return { ...state, isSignedIn: true, userData: action.payload, error: null };
 
     case LOAD_USER:
       console.log("Load user in authReducer");
@@ -27,13 +28,24 @@ const authReducer = ( state = INITIAL_STATE, action) => {
       console.log("loaded user", user);
       state.isSignedIn = user ? true : false;
       
-      return { ...state, userData: user};
+      return { ...state, userData: user, error: null};
     
    
     case SIGN_OUT:
       console.log("Signed out user in authReducer");
       localStorage.clear();
-      return { ...state, isSignedIn: false, userData: null };
+      return { ...state, isSignedIn: false, userData: null, error: null };
+
+
+    case AUTH_ERROR:
+      console.log("Received authentication error");
+      return { ...state, isSignedIn: false, userData: null,
+        error: action.payload };
+
+
+    case AUTH_ERROR_DISPLAYED:
+      console.log("Auth error displayed ");
+      return { ...state, error: null };
 
     default:
       return state;

@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Button, Form, Icon} from 'semantic-ui-react';
-import { signUp, signIn, googleSignIn } from '../actions';
+import { signUp, signIn, googleSignIn, displayedAuthError } from '../actions';
 
 import { GoogleLogin } from 'react-google-login';
 import '../styles/Auth.css';
 
+const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 
 const initialState = { 
   firstName: '', 
@@ -22,6 +23,21 @@ const Auth = () => {
   const [isSignUp, setIsSignup] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const authError = useSelector(state => state.auth.error);
+
+  //Display the auth error for 5 seconds then send an action
+  //to clear it.
+  useEffect( () => {
+    let timer;
+    if (authError){
+      timer = setTimeout(
+        //Clears the error
+        () => dispatch( displayedAuthError() ),
+        5000
+      );
+    }
+    return () => clearTimeout(timer);
+  },[authError]);
   
   const handleShowPassword = () => {    
     setShowPassword(!showPassword);    
@@ -130,7 +146,7 @@ const Auth = () => {
   const passwordFieldType = `${showPassword? "input" : "password"}`;
   
   console.log("Before return formdata", form);
-
+  console.log("google client id ", GOOGLE_CLIENT_ID);
   return(
     
     <div className="SignUp ">      
@@ -230,36 +246,41 @@ const Auth = () => {
             </Form.Field>
           </>
         )}
-        <div className="SignUp-SignUpButton">          
-        <Button className='fluid ui button' type="submit" onClick={handleSubmit}>{isSignUp ? 'Sign Up' : 'Sign In'}
-        </Button>
-        </div>
-        <div className="ui horizontal divider">
-        Or
-        </div>
-        <div className="SignUp-SignInButton">
-        <GoogleLogin
-          clientId = '202556023160-uglkeodct8n1ctvrotf5pn4v2nomshdl.apps.googleusercontent.com'
-          render={ (renderProps) => (
-            <Button className="ui google button primary"
-              onClick={renderProps.onClick}>
-              <i className="google icon"/>
-              Google Sign In
-            </Button>          
-          )}
-          onSuccess = {googleSuccess}
-          onFailure = {googleError}
-          cookiePolicy="single_host_origin"
-        />
-
           
-        <Button onClick={switchMode} className="ui basic button">
-          { isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Sign Up" }
-        </Button>
+          { authError ?  <>
+            <Button className='fluid ui button negative' type="submit">Unable to log in. Try Again</Button>
+            </>  : 
+            <>    
+              <div className="SignUp-SignUpButton">    
+                <Button className='fluid ui button' type="submit" onClick={handleSubmit}>{isSignUp ? 'Sign Up' : 'Sign In'}
+                </Button>
+              </div>    
+            </>       
+          }
+        <div>
+          <div className="ui horizontal divider">
+          Or
+          </div>
+          <div className="SignUp-SignInButton">
+            <GoogleLogin
+              clientId = {GOOGLE_CLIENT_ID}
+              render={ (renderProps) => (
+                <Button className="ui google button primary"
+                  onClick={renderProps.onClick}>
+                  <i className="google icon"/>
+                  Google Sign In
+                </Button>          
+              )}
+              onSuccess = {googleSuccess}
+              onFailure = {googleError}
+              cookiePolicy="single_host_origin"
+            />
+            <Button onClick={switchMode} className="ui basic button">
+            { isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Sign Up" }
+            </Button>
+          </div>
         </div>
-
-
-      </Form>
+    </Form>
     </div>
   );
 }
