@@ -2,7 +2,7 @@ import { Router, Route } from 'react-router-dom';
 import Auth from './Auth';
 import Home from './Home';
 import TaskManager from './taskmanager/TaskManager';
-import Header from '../Header';
+import Header from './Header';
 import history from '../history';
 
 function App() {

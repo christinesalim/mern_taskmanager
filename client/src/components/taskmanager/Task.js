@@ -43,7 +43,7 @@ class Task extends Component {
       description: this.state.description, 
       completed: this.props.completed
     };
-    console.log("Task component handleTaskUpdate: ", task);
+    //console.log("Task component handleTaskUpdate: ", task);
     this.props.editTask(this.props.id, task);
 
     this.toggleForm();

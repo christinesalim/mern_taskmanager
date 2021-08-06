@@ -2,7 +2,7 @@ import React, { useEffect} from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Button } from 'semantic-ui-react';
-import { signOut, loadUser } from './actions';
+import { signOut, loadUser } from '../actions';
 
 
 

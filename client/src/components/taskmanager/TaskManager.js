@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { List, Image, Message } from 'semantic-ui-react';
+import { List, Message } from 'semantic-ui-react';
 import Task from './Task';
-import emptyProfile from '../../images/blank-profile-picture.png';
-import { fetchTasks, getAvatarFile } from '../../actions/index';
+import Avatar from '../avatar/Avatar';
+
+import { fetchTasks } from '../../actions/index';
 import TaskCreateForm from './TaskCreateForm';
 import '../../styles/TaskManager.css';
 
@@ -13,34 +14,12 @@ const TaskManager = () => {
   const user = useSelector( (state) => state.auth.userData);
   const isSignedIn = useSelector( state => state.auth.isSignedIn);
   const retrievedTasks = useSelector( state => state.tasks.tasks );
-  const databaseAvatarInfo = useSelector( state => state.avatar );
-  
+   
   //Local copy of user modified tasks
   const [tasks, setTasks] =  useState([]);
   const [displayedTasks, setDisplayedTasks] = useState([]);
   const prevSignedInStatus = useRef(false);
-
-  console.log("****TaskManager: user", user);
-
-  const getAvatar = useCallback(()=> {
-    console.log("***getAvatar() for user", user?.user._id);
-    dispatch(getAvatarFile(user?.user._id));
-  },[user?.user._id, dispatch]);
-
-  //If we don't yet have the avatar, get it from the database
-  useEffect ( () => {   
-    console.log("****TaskManager: databaseAvatarInfo", databaseAvatarInfo);
-    
-    if (!databaseAvatarInfo?.file && user){
-      console.log("****TaskManager Getting avatar for this user");          
-      getAvatar();
-    }  
-    else {
-      console.log("Already have file", databaseAvatarInfo.file);
-    }  
-  //}, [user?.user._id, databaseAvatarInfo, getAvatar]);
-  }, [user]);
-
+ 
   const fetchDatabaseTasks = useCallback( () => {
     //Get the user's tasks from the database
     dispatch(fetchTasks());
@@ -77,19 +56,19 @@ const TaskManager = () => {
        
   //Get tasks if user just signed in
   useEffect ( () => {
-    console.log("Task Manager useEffect prevSignedInStatus", prevSignedInStatus);
+    //console.log("Task Manager useEffect prevSignedInStatus", prevSignedInStatus);
     
     //Sign in status changed from false to true so get this
     //user's tasks
     if (!prevSignedInStatus.current && isSignedIn){
-      console.log("TaskManager useEffect: user is NOW signed in! Fetching tasks");
+      //console.log("TaskManager useEffect: user is NOW signed in! Fetching tasks");
       fetchDatabaseTasks();    
      
     }
 
     //Save the current sign in status
     prevSignedInStatus.current = isSignedIn;
-    console.log("Task Manager useEffect UPDATING prevSignedInStatus", prevSignedInStatus);
+    
   },[isSignedIn, fetchDatabaseTasks]);
 
   //Update rendered tasks when the state store changes
@@ -99,23 +78,18 @@ const TaskManager = () => {
 
     //Update the list of tasks rendered based on the new list    
     let tasksToDisplay = getTasksToRender (retrievedTasks)
-    console.log("TaskManager useEffect tasksToDisplay:", tasksToDisplay);
+    
     setDisplayedTasks(tasksToDisplay);
     
   }, [retrievedTasks, getTasksToRender]); 
   
-  console.log(`Taskmanager: file ${databaseAvatarInfo.file}, error status: ${databaseAvatarInfo.error}`  );
-
   return (
     <div>
       { user ? (
         <>
           <div className="TaskManager">
             <div className="TaskManager-Heading">
-              {databaseAvatarInfo.file && !databaseAvatarInfo.error? 
-                <Image src={databaseAvatarInfo.file} alt="avatar" avatar/> : 
-                <Image src={emptyProfile} alt="no avatar" avatar/> 
-              }     
+              <Avatar type={"avatar"} id={user.user._id}/>
               <span className="TaskManager-Title">My Tasks</span>
             </div>
             <List>          
