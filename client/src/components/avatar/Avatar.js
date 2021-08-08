@@ -62,10 +62,11 @@ const Avatar = (props) => {
     setConfirmOpen(false);
   }
 
+  console.log("Avatar: file is ", databaseAvatarInfo.file);
   //Render this component
   return (
     <>
-      { databaseAvatarInfo.file?               
+      { databaseAvatarInfo.file ?               
         <div className="Home-Icons">
           <Image             
             src={databaseAvatarInfo.file} 

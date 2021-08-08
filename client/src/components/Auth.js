@@ -145,8 +145,8 @@ const Auth = () => {
 
   const passwordFieldType = `${showPassword? "input" : "password"}`;
   
-  console.log("Before return formdata", form);
-  console.log("google client id ", GOOGLE_CLIENT_ID);
+  //console.log("Before return formdata", form);
+  //console.log("google client id ", GOOGLE_CLIENT_ID);
   return(
     
     <div className="SignUp ">      

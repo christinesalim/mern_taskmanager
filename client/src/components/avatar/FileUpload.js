@@ -15,7 +15,7 @@ const FileUpload = () => {
   const uploadedFileName = useSelector( state=> state.avatar.fileName);
 
   useEffect( () => {
-    console.log("New upload status: ", uploadStatus);
+    //console.log("New upload status: ", uploadStatus);
     if (uploadStatus === 200){
       //setMessage("File uploaded successfully");
       setAvatarFile(null);
