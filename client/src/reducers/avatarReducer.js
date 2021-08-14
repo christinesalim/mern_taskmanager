@@ -4,7 +4,8 @@ import {
   DELETED_AVATAR_FILE,
   UPLOAD_AVATAR_REQ_RECEIVED,
   UPLOAD_AVATAR_ERROR,
-  GET_AVATAR_ERROR
+  GET_AVATAR_ERROR, 
+  SIGN_OUT
 } from '../actions/types';
 
 const INITIAL_STATE = {
@@ -50,7 +51,7 @@ const AvatarReducer = ( state = INITIAL_STATE, action) => {
           fileUploaded: false  //Indicate we are displaying the latest file
                                //and reset the uploaded flag
         };
-        case GET_AVATAR_ERROR:
+      case GET_AVATAR_ERROR:
         console.log("GET_AVATAR_ERROR", action.payload);
         return { 
           ...state, 
@@ -64,6 +65,18 @@ const AvatarReducer = ( state = INITIAL_STATE, action) => {
           fileUploaded: false, 
           deleteStatus: action.playload, 
           error: null  
+        };
+      case SIGN_OUT:
+        console.log("Signed out user in avatarReducer");
+      
+        return { 
+          ...state, 
+          fileName: null,
+          file: null,
+          fileUploaded: false,
+          uploadStatus: null,
+          deleteStatus: null,
+          error: null 
         };
       default:
         return state;
