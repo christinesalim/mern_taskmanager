@@ -1,2 +1,5 @@
+//Create a file called .env in the client directory 
+//and set the values for the two environment variables below
+
 REACT_APP_BASE_URL=https://localhost:3000/
 REACT_APP_GOOGLE_CLIENT_ID=<YOUR_CLIENT_ID>
