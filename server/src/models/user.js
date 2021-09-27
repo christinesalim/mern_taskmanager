@@ -1,6 +1,6 @@
-const mongoose = require ('mongoose');
-const validator = require ('validator');
-const bcrypt = require ('bcryptjs');
+const mongoose = require('mongoose');
+const validator = require('validator');
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Task = require('./task');
 
@@ -22,12 +22,12 @@ const userSchema = new mongoose.Schema({
     unique: true, //only one email 
     trim: true,
     lowercase: true,
-    validate(value){
+    validate(value) {
       //Use validator package for email validation
-      if (!validator.isEmail(value)){
-        throw new Error ('Email is not valid');
-      }  
-    } 
+      if (!validator.isEmail(value)) {
+        throw new Error('Email is not valid');
+      }
+    }
   },
   password: {
     type: String,
@@ -35,8 +35,8 @@ const userSchema = new mongoose.Schema({
     minLength: 7,
     trim: true,
     validate(value) {
-      if (value.toLowerCase().includes('password')){
-        throw new Error ('Password cannot contain "password"');
+      if (value.toLowerCase().includes('password')) {
+        throw new Error('Password cannot contain "password"');
       }
     }
   },
@@ -63,7 +63,7 @@ userSchema.virtual('tasks', {
 
 //Methods are accessible on the instance - instance methods (user)
 //generateAuthToken() is a method we call on each user created
-userSchema.methods.generateAuthToken = async function() {
+userSchema.methods.generateAuthToken = async function () {
   const user = this;
 
   //Generate JWT token with ID as payload and privateKey string
@@ -72,12 +72,12 @@ userSchema.methods.generateAuthToken = async function() {
   await user.save(); //save tokens to database
 
   return token;
-} 
+}
 
 //Override the toJSON method and remove the tokens and password
 //The JSON.stringify() method uses this toJSON() method to 
 //convert the JS object to a JSON string before sending it
-userSchema.methods.toJSON = function() {
+userSchema.methods.toJSON = function () {
   const user = this;
 
   //Get raw object without extra mongoose properties
@@ -97,13 +97,27 @@ userSchema.methods.toJSON = function() {
 //Return the user with matching credentials
 userSchema.statics.findByCredentials = async (email, password) => {
   const user = await User.findOne({ email });
-  if (!user){
-    throw new Error('Unable to login');
+  if (!user) {
+    console.log('Unable to login. User not found');
+    throw new Error('Unable to login. User not found');
   }
   //Check if passwords match: compare plain text with stored hash password
   const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch){
-    throw new Error ('Unable to login');
+  if (!isMatch) {
+    console.log('Unable to login. Passwords don\'t match')
+    throw new Error('Unable to login. Passwords don\'t match');
+  }
+  return user;
+
+}
+
+
+//Static method to find a user by uid credential from Firebase
+//Returns the user with the matching uid
+userSchema.statics.findByEmail = async (email) => {
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw new Error('Unable to login. Email not found');
   }
   return user;
 
@@ -112,25 +126,25 @@ userSchema.statics.findByCredentials = async (email, password) => {
 //Setup middleware to hash password before (pre) saving it
 //save event
 //Use regular function not arrow function - need this binding
-userSchema.pre('save', async function(){
+userSchema.pre('save', async function () {
   const user = this; //get reference to user
-  
+
   //Has password been updated?
-  if (user.password && user.isModified('password')){
+  if (user.password && user.isModified('password')) {
     //8 rounds of hashing
     user.password = await bcrypt.hash(user.password, 8);
-  }  
-  
+  }
+
   //Removed call to next(); response was not getting sent back
 });
 
 //Delete user tasks when user is removed
-userSchema.pre('remove', async function(next) {
+userSchema.pre('remove', async function (next) {
   const user = this; // the user document
-  
+
   await Task.deleteMany({ owner: user._id });
   next();
- 
+
 });
 
 //Mongoose will create a 'users' collection in 

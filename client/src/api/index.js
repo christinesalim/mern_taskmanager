@@ -1,37 +1,49 @@
 import axios from 'axios';
 
+
 const BASE_URL = process.env.REACT_APP_BASE_URL;
 
-//Fix this later: TODO
+
 const API = axios.create({ baseURL: BASE_URL });
-console.log ("BASE_URL", BASE_URL);
+console.log("BASE_URL", BASE_URL);
 
 //Intercept all requests sent to backend API and add the Bearer token
 API.interceptors.request.use((req) => {
-  
-  //Do we have JWT token 
-  if(localStorage.getItem('taskmanager')){
-    req.headers.Authorization = `Bearer ${JSON.parse(localStorage.getItem('taskmanager')).jwtToken}`;
-    
+
+  //Do we have JWT token from Firebase?
+  if (localStorage.getItem('taskmanager')) {
+    req.headers.Authorization = `Bearer ${JSON.parse(localStorage.getItem('taskmanager'))}`;
+
+  } else {
+    console.log('API missing JWT token');
   }
   return req;
 })
 
-//Creates a user
-export const signUp = (formData) => {
+//Creates a user on the backend server after signing up a user on
+//Firebase
+export const signedUp = (formData) => {
   return API.post('/users', formData);
 }
 
 //Logs in existing user
-export const signIn = (formData) => {
-  return API.post('/users/login', formData);
+export const signedIn = (formData) => {
+  console.log('API signedIn:', formData);
+  return API.put('/users/login', formData);
+}
+
+//Loads an existing user from previously saved sign in
+export const loadedUser = (email) => {
+  console.log('In API loadedUser');
+  return API.put('/users/login/email', { email });
 }
 
 //Log in Google user
 export const googleSignIn = (token) => {
   console.log("Sending google token to backend", token);
-  return API.post('/users/googlelogin', token);
+  return API.get('/users/googlelogin', { token });
 }
+
 
 //Signout the user
 export const signOut = () => {
@@ -65,17 +77,17 @@ export const deleteTask = (id) => {
 
 //Send an avatar file to the backend for this user
 export const sendAvatarFile = (formData) => {
-  console.log("Sending avatar file request");  
-  return API.post('/users/me/avatar', formData, 
-  {
-    headers: {'Content-Type': 'multipart/form-data'}
-  });   
+  console.log("Sending avatar file request");
+  return API.post('/users/me/avatar', formData,
+    {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
 }
 
 //Get avatar from backend for this user
 export const getAvatarFile = (id) => {
   console.log("Sending avatar get request");
-  return API.get(`/users/${id}/avatar`, { responseType: 'blob'});
+  return API.get(`/users/${id}/avatar`, { responseType: 'blob' });
 }
 
 //Delete the avatar file from the backend database

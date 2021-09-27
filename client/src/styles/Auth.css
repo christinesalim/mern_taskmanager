@@ -1,14 +1,13 @@
-.SignUp {
-  max-width: 500px;
-  display: flex;
-  flex-direction: row;
+.Auth-Login {
+  max-width: 800px;
+  min-height: 90vh;
   margin: 20px;
   padding: 20px;
 
 }
-
-.SignUp-SignInButton{
-  display: flex;
-  flex-direction:row;
-  justify-content: center;
+.Auth-Logo {
+   max-width: 250px !important;
+   max-height: 250px !important;
+  margin-bottom: 5px !important; 
+  /*align-items: center; */
 }

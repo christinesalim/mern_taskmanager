@@ -1,15 +1,16 @@
 import history from '../history';
 
-import { 
-  FETCH_TASKS, 
-  CREATE_TASK, 
-  SIGN_IN, 
-  SIGN_OUT, 
-  LOAD_USER, 
-  EDIT_TASK, 
-  DELETE_TASK, 
-  UPLOAD_AVATAR_COMPLETED, 
-  GET_AVATAR_RESPONSE_RECEIVED, 
+import {
+  FETCH_TASKS,
+  CREATE_TASK,
+  FIREBASE_SIGNED_IN,
+  FIREBASE_SIGNED_UP,
+  SIGN_OUT,
+  LOADED_USER,
+  EDIT_TASK,
+  DELETE_TASK,
+  UPLOAD_AVATAR_COMPLETED,
+  GET_AVATAR_RESPONSE_RECEIVED,
   UPLOAD_AVATAR_REQ_RECEIVED,
   DELETED_AVATAR_FILE,
   UPLOAD_AVATAR_ERROR,
@@ -19,93 +20,105 @@ import {
 } from './types';
 import * as api from '../api/index.js';
 
-//Handle loading an existing user: we already have user's data
-//and token saved
-export const loadUser = () => {
-  return { 
-    type: LOAD_USER 
-  };
-};
-
 
 //Action to handle user signing in
-export const signIn = (formData) => async dispatch => {
+export const signedIn = (formData) => async dispatch => {
   try {
-    const { data } = await api.signIn(formData);
+    console.log('***signedIn action data:', formData);
+    const { data } = await api.signedIn(formData);
+    console.log('****Sign in response message', data);
 
-    console.log("Sign in ", data);
-
-    dispatch({ type: SIGN_IN, payload: data });
-
+    dispatch({ type: FIREBASE_SIGNED_IN, payload: data });
     history.push('/taskmanager');
-  }catch (error){
-    console.log("Error", error.message);
+  } catch (error) {
+    console.log('signedIn Actions Error', error.message);
     dispatch({ type: AUTH_ERROR, payload: error });
   }
-  
+
 };
 
 //Action to handle user signing in through google auth2
 export const googleSignIn = (token) => async dispatch => {
 
-  try{
+  try {
     const { data } = await api.googleSignIn(token);
-    console.log("Google login data", data);
-    dispatch({ type: SIGN_IN, payload: data });
+    console.log('Google login data', data);
+    dispatch({ type: FIREBASE_SIGNED_IN, payload: data });
     history.push('/taskmanager');
-  } catch(error){
-    console.log("Error", error.message);
+  } catch (error) {
+    console.log('googleSignIn Actions Error', error.message);
     dispatch({ type: AUTH_ERROR, payload: error });
   }
 };
 
-//Action to handle user signing up
-export const signUp = (formData) => async dispatch => {
+//Action to handle user signing up via Firebase
+export const signedUp = (formData) => async dispatch => {
   try {
-    console.log("In signUp action creator", formData);
-    const { data } = await api.signUp(formData);
+    console.log('In signedUp action creator', formData);
+    const { data } = await api.signedUp(formData);
 
-    dispatch({ type: SIGN_IN, payload: data });
+    dispatch({ type: FIREBASE_SIGNED_UP, payload: data });
 
     history.push('/taskmanager');
-  }catch (error){    
-      console.log("Error", error.message);
-      dispatch({ type: AUTH_ERROR, payload: error });    
+  } catch (error) {
+    console.log('signedUp Actions Error', error.message);
+    dispatch({ type: AUTH_ERROR, payload: error });
   }
-  
+
+};
+
+export const loadedUser = (email) => async dispatch => {
+  try {
+    if (email) {
+      console.log('In loadedUser action creator', email);
+      const { data } = await api.loadedUser(email);
+      console.log('In loadedUser action creator data:', data);
+      dispatch({ type: LOADED_USER, payload: data });
+
+      history.push('/taskmanager');
+    }
+  } catch (error) {
+    console.log('loadedUser Actions Error', error.message);
+    dispatch({ type: AUTH_ERROR, payload: error });
+  }
+
 };
 
 //Action to sign out the user
 export const signOut = () => async dispatch => {
-
-  console.log("Action creator: Signing out user");
-  await api.signOut();
-  dispatch ({ type: SIGN_OUT });
-  history.push('/');
+  try {
+    console.log('Action creator: Signing out user');
+    await api.signOut();
+    dispatch({ type: SIGN_OUT });
+    history.push('/auth');
+  } catch (error) {
+    console.log('signOut Actions Error', error.message);
+    dispatch({ type: AUTH_ERROR, payload: error });
+  }
 };
 
 
 //Get tasks from the backend database
-export const fetchTasks = () => async dispatch =>  {
+export const fetchTasks = () => async dispatch => {
   try {
-    console.log("About to fetch tasks");
+    console.log('About to fetch tasks');
     const response = await api.fetchTasks();
-    console.log("Fetched tasks", response);
+    console.log('Received tasks from backend', response);
 
     dispatch({ type: FETCH_TASKS, payload: response.data });
-  }catch (error){
+  } catch (error) {
     console.log(error);
   }
 }
 
 //Send a new task to the backend database
 export const createTask = (task) => async dispatch => {
-  try{
-    console.log("Adding task to database");
+  try {
+    console.log('Adding task to database');
     const response = await api.createTask(task);
-    console.log("Create task response", response);
+    console.log('Create task response', response);
     dispatch({ type: CREATE_TASK, payload: response.data });
-  }catch(error){
+  } catch (error) {
     console.log(error);
   }
 }
@@ -113,11 +126,11 @@ export const createTask = (task) => async dispatch => {
 //Edit an existing task in the backend database
 export const editTask = (id, task) => async dispatch => {
   try {
-    console.log("Editing task in database", task);
+    console.log('Editing task in database', task);
     const response = await api.editTask(id, task);
-    console.log("In editTask action response received:", response);
+    console.log('In editTask action response received:', response);
     dispatch({ type: EDIT_TASK, payload: response.data });
-  }catch(error){
+  } catch (error) {
     console.log(error);
   }
 }
@@ -128,7 +141,7 @@ export const deleteTask = (id) => async dispatch => {
     const response = await api.deleteTask(id);
     dispatch({ type: DELETE_TASK, payload: response.data });
 
-  }catch (error){
+  } catch (error) {
     console.log(error);
   }
 }
@@ -139,11 +152,11 @@ export const uploadAvatarFile = (fileName, formData) => async dispatch => {
     dispatch({ type: UPLOAD_AVATAR_REQ_RECEIVED, payload: fileName });
 
     const response = await api.sendAvatarFile(formData);
-    console.log("Response to avatar upload: ", response);
-    
+    console.log('Response to avatar upload: ', response);
+
     dispatch({ type: UPLOAD_AVATAR_COMPLETED, payload: response.status });
-  }catch(error){
-    console.log("Error", error.message);
+  } catch (error) {
+    console.log('Error', error.message);
     dispatch({ type: UPLOAD_AVATAR_ERROR, payload: error });
   }
 }
@@ -153,15 +166,17 @@ export const getAvatarFile = (id) => async dispatch => {
   try {
     const response = await api.getAvatarFile(id);
     const imageURL = URL.createObjectURL(response.data);
-    
+
     dispatch({ type: GET_AVATAR_RESPONSE_RECEIVED, payload: imageURL });
-  } catch(error){
-    console.log(error);
-    dispatch({ type: GET_AVATAR_ERROR, 
-      payload: { 
-        data: error?.response.data, 
+  } catch (error) {
+    console.log('getAvatarFile error', error);
+    dispatch({
+      type: GET_AVATAR_ERROR,
+      payload: {
+        data: error?.response.data,
         status: error?.response.status,
-      }});
+      }
+    });
   }
 }
 
@@ -169,15 +184,15 @@ export const getAvatarFile = (id) => async dispatch => {
 export const deleteAvatarFile = () => async dispatch => {
   try {
     const response = await api.deleteAvatarFile();
-    dispatch ({  type: DELETED_AVATAR_FILE, payload: response.status });
+    dispatch({ type: DELETED_AVATAR_FILE, payload: response.status });
 
-  } catch (error){
+  } catch (error) {
     console.log(error);
   }
 }
 
 export const displayedAuthError = () => {
-  return { 
-    type: AUTH_ERROR_DISPLAYED 
+  return {
+    type: AUTH_ERROR_DISPLAYED
   };
 }

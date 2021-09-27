@@ -1,34 +1,40 @@
-import React, { useEffect} from 'react';
+import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Button } from 'semantic-ui-react';
-import { signOut, loadUser } from '../actions';
-
+import { signOut, loadedUser } from '../actions';
+import { useAuth } from './firebase/firebaseContext';
 
 
 const Header = () => {
   const dispatch = useDispatch();
-  const isSignedIn = useSelector( (state) => state.auth.isSignedIn);
-  const user = useSelector( (state) => state.auth.userData);
+  const isSignedIn = useSelector((state) => state.auth.isSignedIn);
+  const user = useSelector((state) => state.auth.userData);
   console.log("Header User logged in is: ", user);
   console.log("Header isSignedIn", isSignedIn);
-  
-  
-  //If user has a token then consider them signed in when app first starts up
-  useEffect(() => {
-    console.log("Header dispatching loadUser");
-    dispatch(loadUser()); //action creator
-  },[dispatch]);
+  const { signOutFirebase, currentUser, idToken } = useAuth();
 
+
+  console.log('Header: user,uid:', currentUser.email, currentUser.uid);
+
+  // useEffect(() => {
+  //   if (currentUser.uid && idToken) {
+  //     console.log('Header useEffect dispatching loaded user for uid', currentUser.email);
+  //     dispatch(loadedUser(currentUser.email));
+  //   }
+
+  //   //eslint-disable-next-line
+  // }, [currentUser, idToken])
 
 
   const handleSignOut = () => {
-    if (isSignedIn){
+    if (isSignedIn) {
       try {
         //Signout the user
-        console.log("Header signing out user");
+        console.log("Header signing out user from firebase and backend");
+        signOutFirebase();
         dispatch(signOut());
-      } catch (e){
+      } catch (e) {
         console.log(e);
       }
     }
@@ -44,16 +50,16 @@ const Header = () => {
           All Tasks
         </Link>
         {
-          isSignedIn ? 
+          isSignedIn ?
             <Button secondary onClick={handleSignOut}>
-            Sign Out
+              Sign Out
             </Button>
             :
             <Button as={Link} to='/auth' primary>
               Log In
             </Button>
         }
-       
+
       </div>
     </div>
   );

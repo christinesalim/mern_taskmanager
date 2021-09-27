@@ -1,8 +1,9 @@
 //List of valid action creators
 
-export const SIGN_IN = 'SIGN_IN';
+export const FIREBASE_SIGNED_IN = 'FIREBASE_SIGNED_IN';
+export const FIREBASE_SIGNED_UP = 'FIREBASE_SIGNED_UP';
 export const SIGN_OUT = 'SIGN_OUT';
-export const LOAD_USER = 'LOAD_USER';
+export const LOADED_USER = 'LOAD_USER';
 export const CREATE_TASK = 'CREATE_TASK';
 export const DELETE_TASK = 'DELETE_TASK';
 export const EDIT_TASK = 'EDIT_TASK';

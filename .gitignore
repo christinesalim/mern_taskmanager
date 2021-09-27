@@ -1,9 +1,12 @@
 node_modules
 build
 .env
+.env.local
+.env.prod
 test.env
 dev.env
 config.js
 localConfig.js
 netlifyConfig.js
+firebaseKey.json
 .DS_Store
