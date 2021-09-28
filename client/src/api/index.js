@@ -32,12 +32,6 @@ export const signedIn = (formData) => {
   return API.put('/users/login', formData);
 }
 
-//Loads an existing user from previously saved sign in
-export const loadedUser = (email) => {
-  console.log('In API loadedUser');
-  return API.put('/users/login/email', { email });
-}
-
 //Log in Google user
 export const googleSignIn = (token) => {
   console.log("Sending google token to backend", token);
@@ -93,4 +87,10 @@ export const getAvatarFile = (id) => {
 //Delete the avatar file from the backend database
 export const deleteAvatarFile = () => {
   return API.delete('/users/me/avatar');
+}
+
+//Update the user profile with backend
+export const updateProfile = (formData) => {
+  console.log("Sending profile update to backend");
+  return API.patch('/users/me', formData);
 }

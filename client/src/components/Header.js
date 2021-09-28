@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Button } from 'semantic-ui-react';
-import { signOut, loadedUser } from '../actions';
+import { signOut, signedIn } from '../actions';
 import { useAuth } from './firebase/firebaseContext';
 
 
@@ -10,21 +10,23 @@ const Header = () => {
   const dispatch = useDispatch();
   const isSignedIn = useSelector((state) => state.auth.isSignedIn);
   const user = useSelector((state) => state.auth.userData);
-  console.log("Header User logged in is: ", user);
-  console.log("Header isSignedIn", isSignedIn);
   const { signOutFirebase, currentUser, idToken } = useAuth();
 
+  console.log("Header Redux state User logged in is: ", user);
+  console.log("Header Redux isSignedIn", isSignedIn);
+  console.log('Header: Firebase currentUser,uid:', currentUser.email, currentUser.uid);
 
-  console.log('Header: user,uid:', currentUser.email, currentUser.uid);
+  useEffect(() => {
+    console.log('Header detected currentUser update', currentUser);
+    if (currentUser.uid && idToken && !isSignedIn) {
+      //Inform backend server a user signed in
+      dispatch(signedIn({
+        email: currentUser.email
+      }));
+    }
 
-  // useEffect(() => {
-  //   if (currentUser.uid && idToken) {
-  //     console.log('Header useEffect dispatching loaded user for uid', currentUser.email);
-  //     dispatch(loadedUser(currentUser.email));
-  //   }
-
-  //   //eslint-disable-next-line
-  // }, [currentUser, idToken])
+    //eslint-disable-next-line
+  }, [currentUser, idToken])
 
 
   const handleSignOut = () => {

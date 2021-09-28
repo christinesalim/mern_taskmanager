@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import '../firebase/firebaseConfig';
-import { Card, Button, Form } from 'semantic-ui-react';
+import { Card, Button, Form, Message } from 'semantic-ui-react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -25,6 +25,10 @@ const SignUp = () => {
   const passwordFieldType = `${showPassword ? 'input' : 'password'}`;
   const { signUpFirebase } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [formErrorClassName, setFormErrorClassName] = useState('');
+  const isSignedIn = useSelector((state) => state.auth.isSignedIn);
+  const authError = useSelector((state) => state.auth.error);
 
   //Should submit button be disabled?
   const submitButtonClassName = 'ui basic button' + (loading ? 'disabled' : '');
@@ -34,23 +38,48 @@ const SignUp = () => {
     resolver: yupResolver(schema)
   });
 
+  //Display error message in form for auth error
+  useEffect(() => {
+    if (loading && authError) {
+      setFormErrorClassName('error');
+      setErrorMessage(authError);
+    }
+    //eslint-disable-next-line
+  }, [authError]);
+
   //Submit form callback to sign up a new user with firebase
   const submitForm = async (data) => {
     console.log('SignUp form:', data);
     setLoading(true);
+    setFormErrorClassName('');
+    setErrorMessage('');
 
-    //Create a new user
-    await signUpFirebase(data.email, data.password);
+    try {
+      //Create a new user
+      await signUpFirebase(data.email, data.password);
 
-    //Dispatch event to tell backend server a user signed up
-    dispatch(signedUp({
-      firstName: data.firstName,
-      lastName: data.lastName,
-      email: data.email,
-      password: data.password
-    }));
-    setLoading(false);
+
+      //Dispatch event to tell backend server a user signed up
+      dispatch(signedUp({
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email
+      }));
+    } catch (error) {
+      console.log('SignUp error in submitForm for user', error);
+      setFormErrorClassName('error');
+      setErrorMessage(error.message);
+
+    }
+
   }
+
+  useEffect(() => {
+    console.log('signUp useEffect isSignedIn', isSignedIn);
+    setLoading(false);
+    setFormErrorClassName('');
+    setErrorMessage('');
+  }, [isSignedIn])
 
   return (
     <div className='SignUp'>
@@ -59,7 +88,11 @@ const SignUp = () => {
           <Card.Header className="centered">Sign up here</Card.Header>
         </Card.Content>
         <Card.Content>
-          <Form onSubmit={handleSubmit(submitForm)}>
+          <Form
+            autoComplete='off'
+            className={formErrorClassName}
+            onSubmit={handleSubmit(submitForm)}
+          >
             <Form.Field >
               <label>First Name</label>
               <input
@@ -128,8 +161,12 @@ const SignUp = () => {
               />
               <p>{errors.confirmPassword?.message}</p>
             </Form.Field>
+            <Message
+              error
+              header='Unable to sign up'
+              content={errorMessage}
+            />
             <Button className={submitButtonClassName}>Submit</Button>
-
           </Form>
         </Card.Content>
       </Card>

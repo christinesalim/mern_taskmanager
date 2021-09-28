@@ -29,17 +29,17 @@ const userSchema = new mongoose.Schema({
       }
     }
   },
-  password: {
-    type: String,
-    //required: true, //with gapi we don't get password
-    minLength: 7,
-    trim: true,
-    validate(value) {
-      if (value.toLowerCase().includes('password')) {
-        throw new Error('Password cannot contain "password"');
-      }
-    }
-  },
+  // password: {
+  //   type: String,
+  //   //required: true, //with gapi we don't get password
+  //   minLength: 7,
+  //   trim: true,
+  //   validate(value) {
+  //     if (value.toLowerCase().includes('password')) {
+  //       throw new Error('Password cannot contain "password"');
+  //     }
+  //   }
+  // },
   tokens: [{
     token: {
       type: String,
@@ -61,20 +61,8 @@ userSchema.virtual('tasks', {
   foreignField: 'owner' //the task model's owner-id
 })
 
-//Methods are accessible on the instance - instance methods (user)
-//generateAuthToken() is a method we call on each user created
-userSchema.methods.generateAuthToken = async function () {
-  const user = this;
 
-  //Generate JWT token with ID as payload and privateKey string
-  const token = jwt.sign({ _id: user._id.toString() }, process.env.JWT_SECRET);
-  user.tokens = user.tokens.concat({ token })
-  await user.save(); //save tokens to database
-
-  return token;
-}
-
-//Override the toJSON method and remove the tokens and password
+//Override the toJSON method and remove the tokens and avatar
 //The JSON.stringify() method uses this toJSON() method to 
 //convert the JS object to a JSON string before sending it
 userSchema.methods.toJSON = function () {
@@ -84,7 +72,7 @@ userSchema.methods.toJSON = function () {
   const userObject = user.toObject(); //provided by mongoose
 
   //Delete avatar binary, password and tokens from raw object
-  delete userObject.password;
+  //delete userObject.password;
   delete userObject.tokens;
 
   //We have a separate route to get the avatar
@@ -93,50 +81,16 @@ userSchema.methods.toJSON = function () {
   return userObject;
 }
 
-//Static methods are accessible on the Model - User
-//Return the user with matching credentials
-userSchema.statics.findByCredentials = async (email, password) => {
-  const user = await User.findOne({ email });
-  if (!user) {
-    console.log('Unable to login. User not found');
-    throw new Error('Unable to login. User not found');
-  }
-  //Check if passwords match: compare plain text with stored hash password
-  const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) {
-    console.log('Unable to login. Passwords don\'t match')
-    throw new Error('Unable to login. Passwords don\'t match');
-  }
-  return user;
-
-}
-
-
 //Static method to find a user by uid credential from Firebase
 //Returns the user with the matching uid
 userSchema.statics.findByEmail = async (email) => {
   const user = await User.findOne({ email });
   if (!user) {
-    throw new Error('Unable to login. Email not found');
+    throw new Error(`Unable to login. Email ${email} not found`);
   }
   return user;
 
 }
-
-//Setup middleware to hash password before (pre) saving it
-//save event
-//Use regular function not arrow function - need this binding
-userSchema.pre('save', async function () {
-  const user = this; //get reference to user
-
-  //Has password been updated?
-  if (user.password && user.isModified('password')) {
-    //8 rounds of hashing
-    user.password = await bcrypt.hash(user.password, 8);
-  }
-
-  //Removed call to next(); response was not getting sent back
-});
 
 //Delete user tasks when user is removed
 userSchema.pre('remove', async function (next) {

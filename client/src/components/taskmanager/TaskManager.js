@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { List, Message } from 'semantic-ui-react';
 import Task from './Task';
-import Avatar from '../avatar/avatar';
+import Avatar from '../profile/avatar';
 
 import { fetchTasks } from '../../actions/index';
 import TaskCreateForm from './TaskCreateForm';
@@ -26,10 +26,12 @@ const TaskManager = () => {
 
   //Update the tasks displayed for the user
   useEffect(() => {
-    if (currentUser && idToken) {
+    if (currentUser && idToken && isSignedIn) {
       //Get the user's tasks from the database
+      console.log('TaskManager: getting user tasks from backend')
       dispatch(fetchTasks());
     }
+    //eslint-disable-next-line
   }, [currentUser, idToken]);
 
   //Returns the tasks to render
@@ -74,14 +76,14 @@ const TaskManager = () => {
 
   }, [retrievedTasks, getTasksToRender]);
 
-  console.log('Task Manager user', user);
+
   return (
     <div>
-      {user ? (
+      {currentUser && isSignedIn ? (
         <>
-          <div className="TaskManager">
-            <div className="TaskManager-Heading">
-              <Avatar type={"avatar"} id={user._id} />
+          <div className='TaskManager'>
+            <div className='TaskManager-Heading'>
+              <Avatar type={'avatar'} id={user._id} />
               <span className="TaskManager-Title">My Tasks</span>
             </div>
             <List>

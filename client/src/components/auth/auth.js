@@ -15,7 +15,7 @@ const Auth = () => {
         <Grid.Row className='divided padded stackable'>
           <Grid.Column className='vertically padded' width={9} >
 
-            <Grid.Row clasName='ui container' >
+            <Grid.Row className='ui container' >
               <Image src={logo} alt='logo' className='Auth-Logo centered'></Image>
             </Grid.Row>
 

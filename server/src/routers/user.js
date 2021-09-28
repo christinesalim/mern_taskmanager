@@ -4,9 +4,10 @@ const sharp = require('sharp');
 const User = require('../models/user');
 const { auth, checkAuth } = require('../middleware/auth');
 
+const router = new express.Router();
+
 const { sendWelcomeEmail, sendCancelEmail } =
   require('../emails/account');
-const router = new express.Router();
 
 //Creating a new user - signing up
 //Route handler: POST /users
@@ -32,34 +33,13 @@ router.post('/users', async (req, res) => {
   };
 });
 
-//Login an existing user into the backend database
+//Login an existing user into the backend database 
+//Middleware authenticates the token received with the request
 //Route handler: /users/login'
 router.put('/users/login', checkAuth, async (req, res) => {
   console.log("Received /users/login endpoint", req.body);
 
   try {
-
-    //Client sent ID token from firebase. After validating token in 
-    //middleware, look up this user by email and password and send 
-    //info to client
-    const user = await User.findByCredentials(
-      req.body.email,
-      req.body.password);
-    console.log('Found user ', user);
-    res.send({ user });
-  } catch (e) {
-    res.status(400).send(e);
-  }
-});
-
-//Login an existing user into the backend database. No password is
-//sent.
-//Route handler: /users/login/email'
-router.put('/users/login/email', checkAuth, async (req, res) => {
-  console.log("/users/login endpoint");
-  console.log('payload:', req.body);
-  try {
-
     //Client sent ID token from firebase. After validating token in 
     //middleware which also looked up this user send their 
     //info to client
@@ -68,7 +48,6 @@ router.put('/users/login/email', checkAuth, async (req, res) => {
     res.status(400).send(e);
   }
 });
-
 
 
 //Login a google authenticated user
@@ -140,12 +119,13 @@ router.get('/users/:id', async (req, res) => {
 //Route handler: PATCH 
 //Update the currently authenticated user
 router.patch('/users/me', checkAuth, async (req, res) => {
+  console.log('In patch for /users/me');
 
   //Property names in message body
   const updates = Object.keys(req.body);
 
   //Valid property names
-  const allowedUpdates = ['firstName', 'lastName', 'email', 'password', 'age'];
+  const allowedUpdates = ['firstName', 'lastName', 'email'];
 
   //Check if every properties to update is valid
   const isValidOperation = updates.every(update => allowedUpdates.includes(update));
@@ -249,11 +229,16 @@ router.delete('/users/me/avatar', checkAuth, async (req, res) => {
 });
 
 //GET /users/:id/avatar
-router.get('/users/:id/avatar', async (req, res) => {
+router.get('/users/:id/avatar', checkAuth, async (req, res) => {
   try {
-    console.log("****Get avatar request received for ", req.params.id);
-    const user = await User.findById(req.params.id);
+    console.log("Get avatar request received for ", req.params.id);
+    let user = null;
+    if (req.params.id) {
+      user = await User.findById(req.params.id);
+    }
+
     if (!user || !user.avatar) {
+      console.log('In /users/id/avatar Cannot find user with id:', req.params.id);
       throw new Error('Cannot find user or avatar');
     }
     //We reformat and convert to png when we receive avatar
@@ -261,6 +246,8 @@ router.get('/users/:id/avatar', async (req, res) => {
     res.send(user.avatar);
     console.log("Sent user avatar to client");
   } catch (e) {
+    console.log('In /users/id/avatar Cannot find user with id:', req.params.id, ' ', e);
+
     res.status(404).send(e);
   }
 })

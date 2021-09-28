@@ -6,7 +6,6 @@ import {
   FIREBASE_SIGNED_IN,
   FIREBASE_SIGNED_UP,
   SIGN_OUT,
-  LOADED_USER,
   EDIT_TASK,
   DELETE_TASK,
   UPLOAD_AVATAR_COMPLETED,
@@ -16,7 +15,10 @@ import {
   UPLOAD_AVATAR_ERROR,
   GET_AVATAR_ERROR,
   AUTH_ERROR,
-  AUTH_ERROR_DISPLAYED
+  AUTH_ERROR_DISPLAYED,
+  UPDATE_PROFILE,
+  UPDATE_PROFILE_RESPONSE_RECEIVED,
+  UPDATE_PROFILE_ERROR
 } from './types';
 import * as api from '../api/index.js';
 
@@ -62,23 +64,6 @@ export const signedUp = (formData) => async dispatch => {
     history.push('/taskmanager');
   } catch (error) {
     console.log('signedUp Actions Error', error.message);
-    dispatch({ type: AUTH_ERROR, payload: error });
-  }
-
-};
-
-export const loadedUser = (email) => async dispatch => {
-  try {
-    if (email) {
-      console.log('In loadedUser action creator', email);
-      const { data } = await api.loadedUser(email);
-      console.log('In loadedUser action creator data:', data);
-      dispatch({ type: LOADED_USER, payload: data });
-
-      history.push('/taskmanager');
-    }
-  } catch (error) {
-    console.log('loadedUser Actions Error', error.message);
     dispatch({ type: AUTH_ERROR, payload: error });
   }
 
@@ -186,6 +171,7 @@ export const deleteAvatarFile = () => async dispatch => {
     const response = await api.deleteAvatarFile();
     dispatch({ type: DELETED_AVATAR_FILE, payload: response.status });
 
+
   } catch (error) {
     console.log(error);
   }
@@ -195,4 +181,16 @@ export const displayedAuthError = () => {
   return {
     type: AUTH_ERROR_DISPLAYED
   };
+}
+
+export const updateProfile = (formData) => async dispatch => {
+  try {
+    dispatch({ type: UPDATE_PROFILE });
+    const response = await api.updateProfile(formData);
+
+    dispatch({ type: UPDATE_PROFILE_RESPONSE_RECEIVED, payload: response.data });
+  } catch (error) {
+    console.log('Update Profile error', error);
+    dispatch({ type: UPDATE_PROFILE_ERROR, payload: error });
+  }
 }

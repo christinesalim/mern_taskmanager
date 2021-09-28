@@ -56,7 +56,19 @@ export function AuthStateProvider({ children }) {
         return response.user;
       }).catch((e) => {
         console.log('signUpFirebase error', e);
-        throw new Error(e);
+        let message;
+        const errorCode = e.code;
+        if (errorCode === 'auth/weak-password') {
+          message = 'The password is too weak';
+        } else if (errorCode === 'auth/email-already-in-use') {
+          message = 'The email provided is already in use'
+        } else if (errorCode === 'auth/invalid-email') {
+          message = 'The email provided is invalid'
+        } else {
+          message = 'Unable to sign up at this time'
+        }
+
+        throw new Error(message);
       });
   };
 
@@ -99,6 +111,25 @@ export function AuthStateProvider({ children }) {
     return () => unsubscribe();
 
     // eslint-disable-next-line
+  }, []);
+
+  //Subscribe to auth token changes in firebase; tokens expire every hour
+  useEffect(() => {
+    const unsubscribe = auth.onIdTokenChanged((user) => {
+      if (user) {
+        console.log('FirebaseContext id token changed');
+        user.getIdToken(/*forcerefresh*/false).then((token) => {
+          //JWT token to send with requests to backend
+          setIdToken(token);
+
+
+          //Save the token in local storage
+          localStorage.setItem('taskmanager', JSON.stringify(token));
+          console.log('Firebase: Saved REFRESHED JWT token to send to backend');
+        });
+      }
+    });
+
   }, []);
 
   const value = {

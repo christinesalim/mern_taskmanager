@@ -2,15 +2,18 @@ import {
   FIREBASE_SIGNED_IN,
   FIREBASE_SIGNED_UP,
   SIGN_OUT,
-  LOADED_USER,
   AUTH_ERROR,
-  AUTH_ERROR_DISPLAYED
+  AUTH_ERROR_DISPLAYED,
+  UPDATE_PROFILE,
+  UPDATE_PROFILE_RESPONSE_RECEIVED,
+  UPDATE_PROFILE_ERROR
 } from '../actions/types';
 
 const INITIAL_STATE = {
   isSignedIn: null,
   userData: null,
-  error: null
+  error: null,
+  loading: false
 };
 
 const authReducer = (state = INITIAL_STATE, action) => {
@@ -32,13 +35,6 @@ const authReducer = (state = INITIAL_STATE, action) => {
 
       return { ...state, isSignedIn: true, userData: action.payload, error: null };
 
-    case LOADED_USER:
-      //Update user values and add the isSignedIn state
-      console.log("authReducer: user loaded successfully on backend");
-      console.log("Retrieved user data: ", action.payload);
-
-      return { ...state, isSignedIn: true, userData: action.payload, error: null };
-
 
     case SIGN_OUT:
       console.log("Signed out user in authReducer");
@@ -47,7 +43,7 @@ const authReducer = (state = INITIAL_STATE, action) => {
 
 
     case AUTH_ERROR:
-      console.log("Received authentication error");
+      console.log("Received authentication error", action.payload);
       return {
         ...state, isSignedIn: false, userData: null,
         error: action.payload
@@ -57,6 +53,18 @@ const authReducer = (state = INITIAL_STATE, action) => {
     case AUTH_ERROR_DISPLAYED:
       console.log("Auth error displayed ");
       return { ...state, error: null };
+
+    case UPDATE_PROFILE:
+      console.log('UPDATE_PROFILE reducer');
+      return { ...state, loading: true, error: null };
+
+    case UPDATE_PROFILE_RESPONSE_RECEIVED:
+      console.log('UPDATE_PROFILE_RESPONSE reducer');
+      return { ...state, loading: false, userData: action.payload, error: null };
+
+    case UPDATE_PROFILE_ERROR:
+      console.log('UPDATE_PROFILE_ERROR reducer');
+      return { ...state, loading: false, error: action.payload };
 
     default:
       return state;

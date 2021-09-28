@@ -17,19 +17,20 @@ const checkAuth = async (req, res, next) => {
 
   try {
     const decodedToken = await admin.auth().verifyIdToken(authToken);
-    console.log('Decoded token', decodedToken);
+    console.log('Decoded token verified', decodedToken);
     req.email = decodedToken.email;
 
     //Find the user in the database using their email from the decoded token
     const user = await User.findByEmail(req.email);
+    console.log('checkauth found user by email', user);
 
     req.user = user;
     next();
 
   } catch (e) {
     console.log(e);
-    console.log('Sending 403 status: unauthorized');
-    res.status(403).send('Unauthorized');
+    console.log('Sending 403 status: unauthorized user - email');
+    res.status(403).send('Unauthorized user');
   }
 }
 
